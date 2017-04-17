@@ -39,6 +39,7 @@ let Picture = mongoose.model('picture', pictureSchema);
 
 app.set('port', process.env.PORT || 3000);
 
+//get picture's info from mongodb
 app.get('/', (req, res) => {
     Picture.find((err, members) => {
         if (err) return res.status(500).send({
@@ -49,6 +50,7 @@ app.get('/', (req, res) => {
     });
 });
 
+//file upload(post)
 app.post('/upload_do', (req, res) => {
   let form = new formidable.IncomingForm();
   let response;
@@ -59,10 +61,13 @@ app.post('/upload_do', (req, res) => {
     console.log(files);
 
     let newPictureValue = Object.values(files)[0];
+    console.log(newPictureValue);
 
     let picture = new Picture();
-    picture.name = newPictureValue.name;
+    picture.name = fields.name;
     picture.path = newPictureValue.path;
+    picture.information = fields.information;
+    picture.author = fields.author;
     console.log('name: ' + picture.name + ' path: ' + picture.path);
     response = [picture];
     picture.save((err) => {
@@ -72,16 +77,21 @@ app.post('/upload_do', (req, res) => {
           error: 'data save failure'
         });
       }
-      res.status(200).json(response);
+      res.status(201).json(response);
     });
   });
-
   form.on('fileBegin', (name, file) => {
     file.path = __dirname + '/uploads/' + file.name;
   });
   form.on('progress', (bytesReceived, bytesExpected) => {
     console.log(bytesReceived + '/' + bytesExpected);
   });
+});
+
+//get a picture file
+app.get('/uploads/:picture_name', (req, res) => {
+  let filePath = req.params.picture_name;
+  res.status(200).sendFile("/Users/Naver/Desktop/boost/uploads/" + filePath);
 });
 
 app.use((req, res) => {
@@ -100,5 +110,4 @@ app.use((err, req, res, next) => {
 app.listen(app.get('port'), () => {
     console.log('Express started on http://localhost:' +
         app.get('port') + '; press Ctrl-C to terminate.');
-
 });
