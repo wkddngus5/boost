@@ -1,87 +1,77 @@
 'use strict';
 
-let express = require('express');
-let app = express();
+const express = require('express');
+const app = express();
 
-let path = require('path');
+const path = require('path');
 
-let logger = require('morgan');
-let cookieParser = require('cookie-parser');
-let bodyParser = require('body-parser');
-let session = require('express-session');
+const logger = require('morgan');
+const cookieParser = require('cookie-parser');
+const bodyParser = require('body-parser');
+const session = require('express-session');
 
-let mongoose = require('mongoose');
+const mongoose = require('mongoose');
 mongoose.Promise = require('bluebird');
 
-let db = mongoose.connection;
+const db = mongoose.connection;
 db.on('error', console.error);
 db.once('open', function(){
   console.log("Connected to mongod server");
 });
 
 mongoose.connect('mongodb://localhost:27017/BoostCamp');
+const formidable = require('formidable');
+const Schema = mongoose.Schema;
 
-let formidable = require('formidable');
+const gm = require('gm');
 
-let Schema = mongoose.Schema;
+const importFilesPath = process.cwd();
+const utils = require(importFilesPath + '/config/utils');
+const dbModels = require(importFilesPath + '/config/dbModels');
+const imageFinder = require(importFilesPath + '/config/imageFinder');
+const imageUploader = require(importFilesPath + '/config/imageUploader');
 
-//정보, 이미지, 작성자
-let pictureSchema = new Schema({
-    name: String,
-    information: String,
-    author: String,
-    path: String
-}, {
-    collection: 'picture'
-});
-
-let Picture = mongoose.model('picture', pictureSchema);
+const Image = dbModels.makeImageDao(mongoose);
 
 app.set('port', process.env.PORT || 3000);
 
 //get picture's info from mongodb
 app.get('/', (req, res) => {
-    Picture.find((err, members) => {
-        if (err) return res.status(500).send({
-            error: 'database failure'
-        });
-        console.log(members);
-        res.json(members);
-    });
+  imageFinder.findAll(Image, res);
 });
 
 //file upload(post)
-app.post('/upload_do', (req, res) => {
+app.post('/image', (req, res) => {
   let form = new formidable.IncomingForm();
-  let response;
+  let responseBody;
+  let fileName = utils.guid();
   form.parse(req, function(err, fields, files) {
-    console.log('fields: ');
-    console.log(fields);
-    console.log('files: ');
-    console.log(files);
+    utils.logFileInfo(fields, files);
 
-    let newPictureValue = Object.values(files)[0];
-    console.log(newPictureValue);
+    let image = new Image();
+    utils.setImageData(image, fields, files);
+    responseBody = [image];
 
-    let picture = new Picture();
-    picture.name = fields.name;
-    picture.path = newPictureValue.path;
-    picture.information = fields.information;
-    picture.author = fields.author;
-    console.log('name: ' + picture.name + ' path: ' + picture.path);
-    response = [picture];
-    picture.save((err) => {
+    //make thumbnailImg
+    gm(image.image_path)
+    .thumb(100, 100, 'uploads/' + fileName + '_thumb.jpg', function (err) {
+      if (err) console.error(err);
+      else console.log('done - thumb');
+    });
+
+    //db save
+    image.save((err) => {
       if(err) {
         console.log(err);
         res.status(500).send({
           error: 'data save failure'
         });
       }
-      res.status(201).json(response);
+      res.status(201).json(responseBody);
     });
   });
   form.on('fileBegin', (name, file) => {
-    file.path = __dirname + '/uploads/' + file.name;
+    file.path = __dirname + '/uploads/' + fileName +'.jpg';
   });
   form.on('progress', (bytesReceived, bytesExpected) => {
     console.log(bytesReceived + '/' + bytesExpected);
@@ -89,8 +79,8 @@ app.post('/upload_do', (req, res) => {
 });
 
 //get a picture file
-app.get('/uploads/:picture_name', (req, res) => {
-  let filePath = req.params.picture_name;
+app.get('/image/:image_name', (req, res) => {
+  let filePath = req.params.image_name;
   res.status(200).sendFile("/Users/Naver/Desktop/boost/uploads/" + filePath);
 });
 
