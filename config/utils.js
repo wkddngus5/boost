@@ -17,7 +17,7 @@ module.exports.logFileInfo = (fields, files) => {
 
 module.exports.setImageData = (image, fields, files) => {
   let newImageValue = Object.values(files)[0];
-  console.log('newImageValue: ' + newImageValue);
+  console.log('newImageValue: ' + newImageValue.path);
 
   image.image_title = fields.image_title;
   image.image_path = newImageValue.path;

@@ -6,6 +6,7 @@ const app = express();
 const path = require('path');
 
 const logger = require('morgan');
+
 const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
 const session = require('express-session');
@@ -33,7 +34,10 @@ const imageUploader = require(importFilesPath + '/config/imageUploader');
 
 const Image = dbModels.makeImageDao(mongoose);
 
+const del = require('del');
+
 app.set('port', process.env.PORT || 3000);
+app.use(cookieParser());
 
 //get picture's info from mongodb
 app.get('/', (req, res) => {
@@ -45,7 +49,7 @@ app.post('/image', (req, res) => {
   let form = new formidable.IncomingForm();
   let responseBody;
   let fileName = utils.guid();
-  form.parse(req, function(err, fields, files) {
+  form.parse(req, (err, fields, files) => {
     utils.logFileInfo(fields, files);
 
     let image = new Image();
@@ -54,7 +58,7 @@ app.post('/image', (req, res) => {
 
     //make thumbnailImg
     gm(image.image_path)
-    .thumb(100, 100, 'uploads/' + fileName + '_thumb.jpg', function (err) {
+    .thumb(100, 100, 'uploads/' + fileName + '_thumb.jpg', (err) => {
       if (err) console.error(err);
       else console.log('done - thumb');
     });
@@ -78,11 +82,71 @@ app.post('/image', (req, res) => {
   });
 });
 
-//get a picture file
+//get a image file
 app.get('/image/:image_name', (req, res) => {
   let filePath = req.params.image_name;
-  res.status(200).sendFile("/Users/Naver/Desktop/boost/uploads/" + filePath);
+  res.status(200).sendFile(__dirname + '/uploads/' +  filePath + '.jpg');
 });
+
+//delete a image file
+app.delete('/image/:image_id', (req, res) => {
+    Image.findOne({ _id: req.params.image_id }, (err, doc) => {
+        let imageName = doc.image_path.split('.')[0];
+        console.log(imageName);
+
+        del([imageName + '.jpg']).then( (paths) => {
+            console.log('Deleted files and folders:\n', paths.join('\n'));
+        });
+        del([imageName + '_thumb.jpg']).then( (paths) => {
+            console.log('Deleted files and folders:\n', paths.join('\n'));
+        });
+
+        Image.remove({ _id: req.params.image_id }, function(err) {
+            res.status(200).json(doc);
+        });
+    });
+});
+
+//update a image file
+app.put('/image/:image_id', (req, res) => {
+    Image.findOne({ _id: req.params.image_id }, (err, doc) => {
+        console.log(doc);
+        let form = new formidable.IncomingForm();
+        let responseBody;
+        let fileName = doc.image_path.split('.')[0];
+
+        form.parse(req, function(err, fields, files) {
+            utils.logFileInfo(fields, files);
+
+            let image = new Image();
+            utils.setImageData(image, fields, files);
+            responseBody = [image];
+
+            //make thumbnailImg
+            gm(image.image_path)
+                .thumb(100, 100, fileName + '_thumb.jpg', function (err) {
+                    if (err) console.error(err);
+                    else console.log('done - thumb');
+                });
+
+            Image.findOneAndUpdate({ _id: req.params.image_id }, {$set: {
+                image_title: image.image_title,
+                image_desc: image.image_desc
+                }}, (err, doc) => {
+                res.status(200).json(image);
+            });
+        });
+
+        form.on('fileBegin', (name, file) => {
+            file.path = fileName +'.jpg';
+        });
+
+        form.on('progress', (bytesReceived, bytesExpected) => {
+            console.log(bytesReceived + '/' + bytesExpected);
+        });
+    });
+});
+
 
 app.use((req, res) => {
     res.type('text/plain');
