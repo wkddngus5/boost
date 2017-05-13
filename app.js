@@ -7,9 +7,15 @@ const path = require('path');
 
 const logger = require('morgan');
 
-const cookieParser = require('cookie-parser');
-const bodyParser = require('body-parser');
+const bodyParser = require('body-parser').json();
 const session = require('express-session');
+
+app.use(session({
+    secret: 'secure key',
+    resave: false,
+    saveUnitialized: false,
+    cookie: { secure: false }
+}));
 
 const mongoose = require('mongoose');
 mongoose.Promise = require('bluebird');
@@ -33,11 +39,66 @@ const imageFinder = require(importFilesPath + '/config/imageFinder');
 const imageUploader = require(importFilesPath + '/config/imageUploader');
 
 const Image = dbModels.makeImageDao(mongoose);
+const User = dbModels.makeUserDao(mongoose);
 
 const del = require('del');
 
 app.set('port', process.env.PORT || 3000);
-app.use(cookieParser());
+
+app.post('/user', bodyParser, (req, res) => {
+    User.findOne({ email: req.body.email }, (err, doc) => {
+        if(doc) {
+            res.status(403).send({
+                error: 'email overlaped!'
+            });
+            return;
+        }
+
+        let user = new User();
+        user.email = req.body.email;
+        user.password = req.body.password;
+        user.nickname = req.body.nickname;
+        console.log('NEW USER: ' + user);
+
+        user.save((err) => {
+            if(err) {
+                console.log(err);
+                res.status(500).send({
+                    error: 'data save failure'
+                });
+            }
+            res.send(user);
+        });
+    });
+});
+
+app.post('/login', bodyParser, (req, res) => {
+    User.findOne({ email: req.body.email }, (err, doc) => {
+        if(!doc) {
+            res.status(403).send({
+                error: 'not found account'
+            });
+            return;
+        }
+        if(doc.password != req.body.password) {
+            res.status(403).send({
+                error: 'password wrong'
+            });
+            return;
+        }
+        req.session.login_ok = true;
+        req.session.login_id = doc._id;
+        res.status(200).send({
+            login_id: req.session.login_id
+        });
+    });
+});
+
+app.get('/logout', (req, res) => {
+   req.session .destroy(() => {
+       res.send(req.session);
+   });
+});
 
 //get picture's info from mongodb
 app.get('/', (req, res) => {
@@ -146,7 +207,6 @@ app.put('/image/:image_id', (req, res) => {
         });
     });
 });
-
 
 app.use((req, res) => {
     res.type('text/plain');

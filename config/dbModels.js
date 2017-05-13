@@ -12,3 +12,16 @@ module.exports.makeImageDao = (mongoose) => {
 
   return mongoose.model('image', imageSchema);
 }
+
+module.exports.makeUserDao = (mongoose) => {
+    const Schema = mongoose.Schema;
+
+    const userSchema = new Schema({
+        email: String,
+        password: String,
+        nickname: String
+    }, {
+        conllection: 'user'
+    });
+    return mongoose.model('user', userSchema);
+}
