@@ -23,5 +23,6 @@ module.exports.makeUserDao = (mongoose) => {
     }, {
         conllection: 'user'
     });
+
     return mongoose.model('user', userSchema);
 }
