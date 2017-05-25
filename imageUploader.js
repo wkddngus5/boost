@@ -47,14 +47,14 @@ guId = () => {
     s4() + '-' + s4() + s4() + s4();
 }
 
-const setImageData = (image, fields, files) => {
+const setImageData = (image, fields, files, req) => {
+  console.log('=====================================');
   let newImageValue = Object.values(files)[0];
-  console.log('newImageValue: ' + newImageValue);
+  console.log('session: ', req.session.passport.user._id);
 
   image.image_title = fields.image_title;
   image.image_path = newImageValue.path;
   image.image_desc = fields.image_desc;
-  image.author = fields.author;
-  console.log('name: ' + image.image_name + ' path: ' + image.image_path);
+  image.author = req.session.passport.user._id;
   return image;
 }
