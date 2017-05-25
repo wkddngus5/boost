@@ -18,7 +18,7 @@ module.exports.logFileInfo = (fields, files) => {
 module.exports.setImageData = (image, fields, files, req) => {
   let newImageValue = Object.values(files)[0];
   console.log(req.session.passport.user);
-  console.log('newImageValue: ' + newImageValue.path);
+  console.log('newImageValue: ' + newImageValue);
 
   image.image_title = fields.image_title;
   image.image_path = newImageValue.path;

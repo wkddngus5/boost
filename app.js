@@ -4,30 +4,20 @@ const express = require('express');
 const app = express();
 const path = require('path');
 const bodyParser = require('body-parser');
-app.use(bodyParser.urlencoded({extended: false}));
+const jsonParser = bodyParser.json();
 
 const session = require('express-session');
 const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
 
-const jsonParser = bodyParser.json();
-
 const mongoose = require('mongoose');
-mongoose.Promise = require('bluebird');
-
 const db = mongoose.connection;
-db.on('error', console.error);
-db.once('open', function () {
-  console.log("Connected to mongod server");
-});
 
-mongoose.connect('mongodb://localhost:27017/BoostCamp');
 const formidable = require('formidable');
-const Schema = mongoose.Schema;
-
 const gm = require('gm');
-
 const importFilesPath = process.cwd();
+const del = require('del');
+
 const utils = require(importFilesPath + '/utils');
 const dbModels = require(importFilesPath + '/dbModels');
 const imageFinder = require(importFilesPath + '/imageFinder');
@@ -36,7 +26,16 @@ const imageUploader = require(importFilesPath + '/imageUploader');
 const Image = dbModels.makeImageDao(mongoose);
 const User = dbModels.makeUserDao(mongoose);
 
-const del = require('del');
+mongoose.Promise = require('bluebird');
+mongoose.connect('mongodb://localhost:27017/BoostCamp');
+db.on('error', console.error);
+db.once('open', function () {
+  console.log("Connected to mongod server");
+});
+
+app.set('port', process.env.PORT || 3000);
+
+app.use(bodyParser.urlencoded({extended: false}));
 
 app.use(session({
   secret: 'keyboard cat',
@@ -45,8 +44,6 @@ app.use(session({
 }));
 app.use(passport.initialize());
 app.use(passport.session());
-
-app.set('port', process.env.PORT || 3000);
 
 passport.use(new LocalStrategy({
     usernameField: 'email',
@@ -89,18 +86,10 @@ app.get('/login', (req, res) => {
 app.post('/login_local', jsonParser,
   passport.authenticate('local', {
       successRedirect: '/',
-      failureRedirect: '/fail',
+      failureRedirect: '/login',
     }
-  ));
-
-app.get('/ok', (req, res) => {
-  res.send(req.user);
-});
-
-app.get('/fail', (req, res) => {
-  res.send('FAIL');
-});
-
+  )
+);
 
 app.post('/user', jsonParser, (req, res) => {
   User.findOne({email: req.body.email}, (err, doc) => {
