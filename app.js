@@ -9,6 +9,7 @@ const jsonParser = bodyParser.json();
 const session = require('express-session');
 const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
+const FacebookStrategy = require('passport-facebook').Strategy;
 
 const mongoose = require('mongoose');
 const db = mongoose.connection;
@@ -66,10 +67,30 @@ passport.use(new LocalStrategy({
   }
 ));
 
-passport.serializeUser(function (user, done) {
-  console.log("serialize", user, user.id);
-  done(null, user.id);
-});
+passport.use(new FacebookStrategy({
+    clientID: "1499173543594905",
+    clientSecret: "9590e04825dacb3276d185e02ea32574",
+    callbackURL: "http://localhost:3000/auth/facebook/callback"
+  },
+  function (req, accessToken, refreshToken, profile, done) {
+    User.findOne({id: profile.id}, function (err, user) {
+      if (user) {
+        return done(err, user);
+      } // 회원 정보가 있으면 로그인
+      const newUser = new User({
+        id: profile.id
+      });
+      newUser.save(function () {
+        return done(null, newUser); // 새로운 회원 생성 후 로그인
+      });
+      passport.serializeUser(function (user, done) {
+        console.log("serialize", user, user.id);
+        done(null, user.id);
+      });
+    });
+  })
+);
+
 
 passport.deserializeUser(function (id, done) {
   console.log("deserialize");
@@ -85,6 +106,18 @@ app.get('/login', (req, res) => {
 
 app.post('/login_local', jsonParser,
   passport.authenticate('local', {
+      successRedirect: '/',
+      failureRedirect: '/login',
+    }
+  )
+);
+
+app.get('/auth/facebook', passport.authenticate('facebook', {
+  authType: 'rerequest', scope: ['public_profile', 'email']
+}));
+
+app.get('/auth/facebook/callback',
+  passport.authenticate('facebook', {
       successRedirect: '/',
       failureRedirect: '/login',
     }
@@ -113,7 +146,7 @@ app.post('/user', jsonParser, (req, res) => {
           error: 'data save failure'
         });
       }
-      res.status(200).send(user);
+      res.status(201).send(user);
     });
   });
 });
@@ -179,8 +212,8 @@ app.post('/image', (req, res) => {
 });
 
 //get a image file
-app.get('/image/:image_name', (req, res) => {
-  let filePath = req.params.image_name;
+app.get('/image/:image_path', (req, res) => {
+  let filePath = req.params.image_path;
   res.status(200).sendFile(__dirname + '/uploads/' + filePath + '.jpg');
 });
 
