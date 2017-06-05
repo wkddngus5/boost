@@ -10,7 +10,8 @@ const session = require('express-session');
 const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
 const FacebookStrategy = require('passport-facebook').Strategy;
-const KakaoStrategy = require('passport-kakao').Strategy;
+const GitHubStrategy = require('passport-github2').Strategy;
+const NaverStrategy = require('passport-naver').Strategy;
 
 const mongoose = require('mongoose');
 const db = mongoose.connection;
@@ -84,7 +85,7 @@ passport.use(new FacebookStrategy({
         nickname: profile.displayName,
         strategy: "Facebook"
       });
-      newUser.save(function () {
+      newUser.save(() => {
         return done(null, newUser);
       });
       passport.serializeUser(function (user, done) {
@@ -95,9 +96,10 @@ passport.use(new FacebookStrategy({
   }
 ));
 
-passport.use(new KakaoStrategy({
-    clientID: " 578907bc45c3d426bf498a3f6192d9eb",
-    callbackURL: "http://localhost:3000/auth/kakao/callback"
+passport.use(new GitHubStrategy({
+    clientID: "4627328162362632d131",
+    clientSecret: "e0bc9e4821a986bd6d6ec9d696a45d3839043490",
+    callbackURL: "http://localhost:3000/auth/github/callback"
   },
   function (accessToken, refreshToken, profile, done) {
     console.log('profile: ', profile);
@@ -108,9 +110,9 @@ passport.use(new KakaoStrategy({
       const newUser = new User({
         id: profile.id,
         nickname: profile.displayName,
-        strategy: "Kakao"
+        strategy: "Github"
       });
-      newUser.save(function () {
+      newUser.save(() => {
         return done(null, newUser);
       });
       passport.serializeUser(function (user, done) {
@@ -151,7 +153,7 @@ app.get('/auth/facebook', passport.authenticate('facebook', {
 }));
 
 app.get('/auth/facebook/callback',
-  passport.authenticate('facebook', { failureRedirect: '/login' }),
+  passport.authenticate('facebook', {failureRedirect: '/login'}),
   (req, res) => {
     User.findOne({id: req.session.passport.user}, (err, user) => {
       if (err) {
@@ -162,13 +164,12 @@ app.get('/auth/facebook/callback',
   }
 );
 
-
-app.get('/auth/kakao', passport.authenticate('kakao', {
-  failureRedirect: '/login'
+app.get('/auth/github', passport.authenticate('github', {
+  scope: ['user:email']
 }));
 
-app.get('/auth/kakao/callback',
-  passport.authenticate('kakao', { failureRedirect: '/login' }),
+app.get('/auth/github/callback',
+  passport.authenticate('github', {failureRedirect: '/login'}),
   (req, res) => {
     User.findOne({id: req.session.passport.user}, (err, user) => {
       if (err) {
@@ -178,6 +179,7 @@ app.get('/auth/kakao/callback',
     });
   }
 );
+
 
 app.post('/user', jsonParser, (req, res) => {
   User.findOne({email: req.body.email}, (err, doc) => {
