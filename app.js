@@ -10,6 +10,7 @@ const session = require('express-session');
 const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
 const FacebookStrategy = require('passport-facebook').Strategy;
+const KakaoStrategy = require('passport-kakao').Strategy;
 
 const mongoose = require('mongoose');
 const db = mongoose.connection;
@@ -23,6 +24,7 @@ const utils = require(importFilesPath + '/utils');
 const dbModels = require(importFilesPath + '/dbModels');
 const imageFinder = require(importFilesPath + '/imageFinder');
 const imageUploader = require(importFilesPath + '/imageUploader');
+const strategy = require(importFilesPath + '/strategy');
 
 const Image = dbModels.makeImageDao(mongoose);
 const User = dbModels.makeUserDao(mongoose);
@@ -51,7 +53,6 @@ passport.use(new LocalStrategy({
     passwordField: 'password'
   },
   function (email, password, done) {
-
     User.findOne({email: email}, function (err, user) {
       if (err) {
         return done(err);
@@ -68,35 +69,68 @@ passport.use(new LocalStrategy({
 ));
 
 passport.use(new FacebookStrategy({
-    clientID: "1499173543594905",
+    clientID: '1499173543594905',
     clientSecret: "9590e04825dacb3276d185e02ea32574",
     callbackURL: "http://localhost:3000/auth/facebook/callback"
   },
-  function (req, accessToken, refreshToken, profile, done) {
-    User.findOne({id: profile.id}, function (err, user) {
+  function (accessToken, refreshToken, profile, done) {
+    console.log('profile: ', profile);
+    User.findOne({id: profile.id}, (err, user) => {
       if (user) {
         return done(err, user);
-      } // 회원 정보가 있으면 로그인
+      }
       const newUser = new User({
-        id: profile.id
+        id: profile.id,
+        nickname: profile.displayName,
+        strategy: "Facebook"
       });
       newUser.save(function () {
-        return done(null, newUser); // 새로운 회원 생성 후 로그인
+        return done(null, newUser);
       });
       passport.serializeUser(function (user, done) {
         console.log("serialize", user, user.id);
         done(null, user.id);
       });
     });
-  })
-);
+  }
+));
 
+passport.use(new KakaoStrategy({
+    clientID: " 578907bc45c3d426bf498a3f6192d9eb",
+    callbackURL: "http://localhost:3000/auth/kakao/callback"
+  },
+  function (accessToken, refreshToken, profile, done) {
+    console.log('profile: ', profile);
+    User.findOne({id: profile.id}, (err, user) => {
+      if (user) {
+        return done(err, user);
+      }
+      const newUser = new User({
+        id: profile.id,
+        nickname: profile.displayName,
+        strategy: "Kakao"
+      });
+      newUser.save(function () {
+        return done(null, newUser);
+      });
+      passport.serializeUser(function (user, done) {
+        console.log("serialize", user, user.id);
+        done(null, user.id);
+      });
+    });
+  }
+));
 
 passport.deserializeUser(function (id, done) {
   console.log("deserialize");
   User.findOne({_id: id}, function (err, user) {
     console.log(id, user);
-    done(err, user);
+    if (!user) {
+      User.findOne({id: id}, function (err, externalUser) {
+        console.log(id, externalUser);
+        done(err, externalUser);
+      });
+    }
   });
 });
 
@@ -104,7 +138,7 @@ app.get('/login', (req, res) => {
   res.status(200).send('login plz');
 });
 
-app.post('/login_local', jsonParser,
+app.post('/auth/local', jsonParser,
   passport.authenticate('local', {
       successRedirect: '/',
       failureRedirect: '/login',
@@ -113,15 +147,36 @@ app.post('/login_local', jsonParser,
 );
 
 app.get('/auth/facebook', passport.authenticate('facebook', {
-  authType: 'rerequest', scope: ['public_profile', 'email']
+  failureRedirect: 'login'
 }));
 
 app.get('/auth/facebook/callback',
-  passport.authenticate('facebook', {
-      successRedirect: '/',
-      failureRedirect: '/login',
-    }
-  )
+  passport.authenticate('facebook', { failureRedirect: '/login' }),
+  (req, res) => {
+    User.findOne({id: req.session.passport.user}, (err, user) => {
+      if (err) {
+        res.send(err);
+      }
+      res.send(user);
+    });
+  }
+);
+
+
+app.get('/auth/kakao', passport.authenticate('kakao', {
+  failureRedirect: '/login'
+}));
+
+app.get('/auth/kakao/callback',
+  passport.authenticate('kakao', { failureRedirect: '/login' }),
+  (req, res) => {
+    User.findOne({id: req.session.passport.user}, (err, user) => {
+      if (err) {
+        res.send(err);
+      }
+      res.send(user);
+    });
+  }
 );
 
 app.post('/user', jsonParser, (req, res) => {

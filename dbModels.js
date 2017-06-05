@@ -17,9 +17,11 @@ module.exports.makeUserDao = (mongoose) => {
     const Schema = mongoose.Schema;
 
     const userSchema = new Schema({
+        id: String,
         email: String,
         password: String,
-        nickname: String
+        nickname: String,
+        strategy: String
     }, {
         conllection: 'user'
     });

@@ -48,7 +48,6 @@ guId = () => {
 }
 
 const setImageData = (image, fields, files, req) => {
-  console.log('=====================================');
   let newImageValue = Object.values(files)[0];
   console.log('session: ', req.session.passport.user._id);
 
