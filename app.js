@@ -64,6 +64,7 @@ passport.use(new LocalStrategy({
       if (user.password !== password) {
         return done(null, false, {message: 'Incorrect password.'});
       }
+      console.log(user);
       return done(null, user);
     });
   }
@@ -88,10 +89,6 @@ passport.use(new FacebookStrategy({
       newUser.save(() => {
         return done(null, newUser);
       });
-      passport.serializeUser(function (user, done) {
-        console.log("serialize", user, user.id);
-        done(null, user.id);
-      });
     });
   }
 ));
@@ -115,29 +112,29 @@ passport.use(new GitHubStrategy({
       newUser.save(() => {
         return done(null, newUser);
       });
-      passport.serializeUser(function (user, done) {
-        console.log("serialize", user, user.id);
-        done(null, user.id);
-      });
     });
   }
 ));
 
+passport.serializeUser(function (user, done) {
+  console.log('USER: ', user);
+  done(null, user._id);
+});
+
 passport.deserializeUser(function (id, done) {
-  console.log("deserialize");
+  console.log('deserialize');
   User.findOne({_id: id}, function (err, user) {
     console.log(id, user);
-    if (!user) {
-      User.findOne({id: id}, function (err, externalUser) {
-        console.log(id, externalUser);
-        done(err, externalUser);
-      });
-    }
+    done(err, user);
   });
 });
 
-app.get('/login', (req, res) => {
-  res.status(200).send('login plz');
+
+//get all picture's info from mongodb
+app.get('/', (req, res) => {
+  Image.find({}, (err, doc) => {
+    res.status(200).json(doc);
+  });
 });
 
 app.post('/auth/local', jsonParser,
@@ -148,19 +145,12 @@ app.post('/auth/local', jsonParser,
   )
 );
 
-app.get('/auth/facebook', passport.authenticate('facebook', {
-  failureRedirect: 'login'
-}));
+app.get('/auth/facebook', passport.authenticate('facebook'));
 
 app.get('/auth/facebook/callback',
   passport.authenticate('facebook', {failureRedirect: '/login'}),
   (req, res) => {
-    User.findOne({id: req.session.passport.user}, (err, user) => {
-      if (err) {
-        res.send(err);
-      }
-      res.send(user);
-    });
+    res.status(301).redirect('/');
   }
 );
 
@@ -171,15 +161,13 @@ app.get('/auth/github', passport.authenticate('github', {
 app.get('/auth/github/callback',
   passport.authenticate('github', {failureRedirect: '/login'}),
   (req, res) => {
-    User.findOne({id: req.session.passport.user}, (err, user) => {
-      if (err) {
-        res.send(err);
-      }
-      res.send(user);
-    });
+    res.redirect('/');
   }
 );
 
+app.get('/login', (req, res) => {
+  res.status(200).send('login plz');
+});
 
 app.post('/user', jsonParser, (req, res) => {
   User.findOne({email: req.body.email}, (err, doc) => {
@@ -210,14 +198,14 @@ app.post('/user', jsonParser, (req, res) => {
 
 app.get('/logout', (req, res) => {
   req.session.destroy(() => {
-    res.redirect('/');
+    res.status(301).redirect('/');
   });
 });
 
-//get picture's info from mongodb
-app.get('/', (req, res) => {
+//get own picture's info from mongodb
+app.get('/image', (req, res) => {
   if (!req.session.passport) {
-    res.redirect('/login');
+    res.status(301).redirect('/login');
   } else {
     console.log('SESSION: ', req.session.passport.user);
     Image.find({author: req.session.passport.user}, (err, doc) => {
@@ -269,9 +257,9 @@ app.post('/image', (req, res) => {
 });
 
 //get a image file
-app.get('/image/:image_path', (req, res) => {
-  let filePath = req.params.image_path;
-  res.status(200).sendFile(__dirname + '/uploads/' + filePath + '.jpg');
+app.get('/image/:image_name', (req, res) => {
+  let fileName = req.params.image_name;
+  res.status(200).sendFile(__dirname + '/uploads/' + fileName + '.jpg');
 });
 
 //delete a image file
@@ -331,33 +319,31 @@ app.put('/image/:image_id', (req, res) => {
             image_desc: image.image_desc
           }
         }, (err, doc) => {
-          res.status(200).json(image);
+          res.status(201).json(image);
         });
       });
 
       form.on('fileBegin', (name, file) => {
         file.path = fileName + '.jpg';
       });
-
       form.on('progress', (bytesReceived, bytesExpected) => {
         console.log(bytesReceived + '/' + bytesExpected);
       });
     }
-
   });
 });
 
 app.use((req, res) => {
   res.type('text/plain');
   res.status('404');
-  res.send('404 - Not Found');
+  res.status(404).send('404 - Not Found');
 });
 
 app.use((err, req, res, next) => {
   console.error(err.stack);
   res.type('text/plain');
   res.status('500');
-  res.send('500 - Server Error');
+  res.status(500).send('500 - Server Error');
 });
 
 app.listen(app.get('port'), () => {
