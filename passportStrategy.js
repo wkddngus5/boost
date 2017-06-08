@@ -4,6 +4,9 @@
 const LocalStrategy = require('passport-local').Strategy;
 const FacebookStrategy = require('passport-facebook').Strategy;
 const GitHubStrategy = require('passport-github2').Strategy;
+const NaverStrategy = require('passport-naver').Strategy;
+const KakaoStrategy = require('passport-kakao').Strategy;
+
 
 module.exports.registStrategy = (User, passport) => {
   passport.serializeUser(function (user, done) {
@@ -77,6 +80,52 @@ module.exports.registStrategy = (User, passport) => {
           id: profile.id,
           nickname: profile.displayName,
           strategy: "Github"
+        });
+        newUser.save(() => {
+          return done(null, newUser);
+        });
+      });
+    }
+  ));
+
+  passport.use(new NaverStrategy({
+      clientID: "91E614mhiq6MXcPa5Y_s",
+      clientSecret: "XsggPiublX",
+      callbackURL: "http://127.0.0.1:3000/auth/naver/callback" // localhost 안먹음
+      // http://forum.developers.naver.com/t/localhost/1020
+    },
+    function(accessToken, refreshToken, profile, done) {
+      console.log('profile: ', profile);
+      User.findOne({id: profile.id}, (err, user) => {
+        if (user) {
+          return done(err, user);
+        }
+        const newUser = new User({
+          id: profile.id,
+          nickname: profile.displayName,
+          strategy: "Naver"
+        });
+        newUser.save(() => {
+          return done(null, newUser);
+        });
+      });
+    }
+  ));
+
+  passport.use(new KakaoStrategy({
+      clientID : "ecc044c6acb16f7c5ac466a774aa866e",
+      callbackURL : "http://localhost:3000/auth/kakao/callback"
+    },
+    function(accessToken, refreshToken, profile, done) {
+      console.log('profile: ', profile);
+      User.findOne({id: profile.id}, (err, user) => {
+        if (user) {
+          return done(err, user);
+        }
+        const newUser = new User({
+          id: profile.id,
+          nickname: profile.displayName,
+          strategy: "Kakao"
         });
         newUser.save(() => {
           return done(null, newUser);

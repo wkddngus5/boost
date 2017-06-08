@@ -81,6 +81,24 @@ app.get('/auth/github/callback',
   }
 );
 
+app.get('/auth/naver', passport.authenticate('naver'));
+
+app.get('/auth/naver/callback',
+  passport.authenticate('naver', {failureRedirect: '/login'}),
+  (req, res) => {
+    res.redirect('/');
+  }
+);
+
+app.get('/auth/kakao', passport.authenticate('kakao'));
+
+app.get('/auth/kakao/callback',
+  passport.authenticate('kakao', {failureRedirect: '/login'}),
+  (req, res) => {
+    res.redirect('/');
+  }
+);
+
 app.get('/login', (req, res) => {
   res.status(200).send('login plz');
 });
