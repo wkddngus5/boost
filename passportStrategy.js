@@ -7,6 +7,27 @@ const GitHubStrategy = require('passport-github2').Strategy;
 const NaverStrategy = require('passport-naver').Strategy;
 const KakaoStrategy = require('passport-kakao').Strategy;
 
+const passportConfig = {
+  "Facebook" : {
+    "clientID": "1499173543594905",
+    "clientSecret": "9590e04825dacb3276d185e02ea32574",
+    "callbackURL": "http://220.230.115.180:3000/auth/facebook/callback"
+  },
+  "Github" : {
+    "clientID": "4627328162362632d131",
+    "clientSecret": "e0bc9e4821a986bd6d6ec9d696a45d3839043490",
+    "callbackURL": "http://220.230.115.180:3000/auth/github/callback"
+  },
+  "Naver" : {
+    "clientID": "91E614mhiq6MXcPa5Y_s",
+    "clientSecret": "XsggPiublX",
+    "callbackURL": "http://220.230.115.180:3000/auth/naver/callback"
+  },
+  "Kakao" : {
+    "clientID" : "ecc044c6acb16f7c5ac466a774aa866e",
+    "callbackURL" : "http://220.230.115.180:3000/auth/kakao/callback"
+  }
+}
 
 module.exports.registStrategy = (User, passport) => {
   passport.serializeUser(function (user, done) {
@@ -43,9 +64,9 @@ module.exports.registStrategy = (User, passport) => {
   ));
 
   passport.use(new FacebookStrategy({
-      clientID: '1499173543594905',
-      clientSecret: "9590e04825dacb3276d185e02ea32574",
-      callbackURL: "http://localhost:3000/auth/facebook/callback"
+      clientID: passportConfig.Facebook.clientID,
+      clientSecret: passportConfig.Facebook.clientSecret,
+      callbackURL: passportConfig.Facebook.callbackURL
     },
     function (accessToken, refreshToken, profile, done) {
       console.log('profile: ', profile);
@@ -66,9 +87,9 @@ module.exports.registStrategy = (User, passport) => {
   ));
 
   passport.use(new GitHubStrategy({
-      clientID: "4627328162362632d131",
-      clientSecret: "e0bc9e4821a986bd6d6ec9d696a45d3839043490",
-      callbackURL: "http://localhost:3000/auth/github/callback"
+      clientID: passportConfig.Github.clientID,
+      clientSecret: passportConfig.Github.clientSecret,
+      callbackURL: passportConfig.Github.callbackURL
     },
     function (accessToken, refreshToken, profile, done) {
       console.log('profile: ', profile);
@@ -89,9 +110,9 @@ module.exports.registStrategy = (User, passport) => {
   ));
 
   passport.use(new NaverStrategy({
-      clientID: "91E614mhiq6MXcPa5Y_s",
-      clientSecret: "XsggPiublX",
-      callbackURL: "http://127.0.0.1:3000/auth/naver/callback" // localhost 안먹음
+      clientID: passportConfig.Naver.clientID,
+      clientSecret: passportConfig.Naver.clientSecret,
+      callbackURL: passportConfig.Naver.callbackURL // localhost 안먹음
       // http://forum.developers.naver.com/t/localhost/1020
     },
     function(accessToken, refreshToken, profile, done) {
@@ -113,8 +134,8 @@ module.exports.registStrategy = (User, passport) => {
   ));
 
   passport.use(new KakaoStrategy({
-      clientID : "ecc044c6acb16f7c5ac466a774aa866e",
-      callbackURL : "http://localhost:3000/auth/kakao/callback"
+      clientID : passportConfig.Kakao.clientID,
+      callbackURL : passportConfig.Kakao.callbackURL
     },
     function(accessToken, refreshToken, profile, done) {
       console.log('profile: ', profile);
@@ -134,4 +155,3 @@ module.exports.registStrategy = (User, passport) => {
     }
   ));
 }
-
