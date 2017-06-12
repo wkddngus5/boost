@@ -5,7 +5,7 @@ const app = express();
 const path = require('path');
 const bodyParser = require('body-parser');
 const jsonParser = bodyParser.json();
-const importFilesPath = process.cwd();
+const importFilesPath = process.cwd() + '/imports';
 
 const session = require('express-session');
 const passport = require('passport');
