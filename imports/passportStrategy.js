@@ -9,26 +9,26 @@ const KakaoStrategy = require('passport-kakao').Strategy;
 
 const passportConfig = {
   "Facebook" : {
-    "clientID": "1205484229581063",
-    "clientSecret": "b72acee0e4d17b2efa84ba31a68fdb37",
-    "callbackURL": "http://localhost:3000/auth/facebook/callback"
-    // "clientID": "1499173543594905",
-    // "clientSecret": "9590e04825dacb3276d185e02ea32574",
-    // "callbackURL": "http://220.230.115.180:3000/auth/facebook/callback"
+    // "clientID": "1205484229581063",
+    // "clientSecret": "b72acee0e4d17b2efa84ba31a68fdb37",
+    // "callbackURL": "http://localhost:3000/auth/facebook/callback"
+    "clientID": "1499173543594905",
+    "clientSecret": "9590e04825dacb3276d185e02ea32574",
+    "callbackURL": "http://ios-api.boostcamp.connect.or.kr/auth/facebook/callback"
   },
   "Github" : {
     "clientID": "4627328162362632d131",
     "clientSecret": "e0bc9e4821a986bd6d6ec9d696a45d3839043490",
-    "callbackURL": "http://220.230.115.180:3000/auth/github/callback"
+    "callbackURL": "http://ios-api.boostcamp.connect.or.kr/auth/github/callback"
   },
   "Naver" : {
     "clientID": "91E614mhiq6MXcPa5Y_s",
     "clientSecret": "XsggPiublX",
-    "callbackURL": "http://220.230.115.180:3000/auth/naver/callback"
+    "callbackURL": "http://ios-api.boostcamp.connect.or.kr/auth/naver/callback"
   },
   "Kakao" : {
     "clientID" : "ecc044c6acb16f7c5ac466a774aa866e",
-    "callbackURL" : "http://220.230.115.180:3000/auth/kakao/callback"
+    "callbackURL" : "http://ios-api.boostcamp.connect.or.kr/auth/kakao/callback"
   }
 }
 
