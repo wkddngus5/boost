@@ -170,6 +170,10 @@ app.put('/image/:image_id', (req, res) => {
   imageUploader.imageUpdate(req, res, Image);
 });
 
+app.get('/.well-known/acme-challenge/abLJVjSCk_S2MLu_IuymoEJ91gwvN9yluSafEAmJff8', (req, res) => {
+  res.sendfile(__dirname + '/abLJVjSCk_S2MLu_IuymoEJ91gwvN9yluSafEAmJff8.yYch_QIBu6poQ4uSHBS_bcEU6E5CMmVBseTScmbP_Uo');
+});
+
 app.use((req, res) => {
   res.type('text/plain');
   res.status('404');
