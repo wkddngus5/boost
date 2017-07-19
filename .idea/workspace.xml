@@ -2,8 +2,6 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="1903cfaa-1184-4c0a-b8e9-c114f89e6b50" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app.js" afterPath="$PROJECT_DIR$/app.js" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/imports/imageUploader.js" afterPath="$PROJECT_DIR$/imports/imageUploader.js" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -19,11 +17,11 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="app.js" pinned="false" current-in-tab="true">
+      <file leaf-file-name="app.js" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/app.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="638">
-              <caret line="45" column="31" lean-forward="true" selection-start-line="45" selection-start-column="31" selection-end-line="45" selection-end-column="31" />
+            <state relative-caret-position="464">
+              <caret line="161" column="0" lean-forward="true" selection-start-line="161" selection-start-column="0" selection-end-line="161" selection-end-column="0" />
               <folding />
             </state>
           </provider>
@@ -49,11 +47,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="imageUploader.js" pinned="false" current-in-tab="false">
+      <file leaf-file-name="imageUploader.js" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/imports/imageUploader.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="75">
-              <caret line="5" column="29" lean-forward="true" selection-start-line="5" selection-start-column="29" selection-end-line="7" selection-end-column="1" />
+            <state relative-caret-position="222">
+              <caret line="65" column="50" lean-forward="false" selection-start-line="65" selection-start-column="50" selection-end-line="65" selection-end-column="50" />
               <folding />
             </state>
           </provider>
@@ -88,6 +86,8 @@
       <find>file.path</find>
       <find>session:</find>
       <find>setImage</find>
+      <find>Diff</find>
+      <find>login</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -125,8 +125,8 @@
         <option value="$PROJECT_DIR$/imports/passportStrategy.js" />
         <option value="$PROJECT_DIR$/index.html" />
         <option value="$PROJECT_DIR$/abLJVjSCk_S2MLu_IuymoEJ91gwvN9yluSafEAmJff8.yYch_QIBu6poQ4uSHBS_bcEU6E5CMmVBseTScmbP_Uo" />
-        <option value="$PROJECT_DIR$/imports/imageUploader.js" />
         <option value="$PROJECT_DIR$/app.js" />
+        <option value="$PROJECT_DIR$/imports/imageUploader.js" />
       </list>
     </option>
   </component>
@@ -146,7 +146,7 @@
     <handled-path value="$PROJECT_DIR$/node_modules" />
   </component>
   <component name="ProjectFrameBounds">
-    <option name="x" value="1953" />
+    <option name="x" value="1971" />
     <option name="y" value="22" />
     <option name="width" value="1181" />
     <option name="height" value="1178" />
@@ -671,15 +671,15 @@
       <workItem from="1500021091394" duration="3092000" />
       <workItem from="1500268414515" duration="445000" />
       <workItem from="1500381515080" duration="643000" />
-      <workItem from="1500468693997" duration="1030000" />
+      <workItem from="1500468693997" duration="2753000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="126506000" />
+    <option name="totallyTimeSpent" value="128229000" />
   </component>
   <component name="ToolWindowManager">
-    <frame x="1953" y="22" width="1181" height="1178" extended-state="0" />
+    <frame x="1971" y="22" width="1181" height="1178" extended-state="0" />
     <editor active="true" />
     <layout>
       <window_info id="Palette" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
@@ -944,18 +944,18 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/imports/imageUploader.js">
+    <entry file="file://$PROJECT_DIR$/app.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="75">
-          <caret line="5" column="29" lean-forward="true" selection-start-line="5" selection-start-column="29" selection-end-line="7" selection-end-column="1" />
+        <state relative-caret-position="464">
+          <caret line="161" column="0" lean-forward="true" selection-start-line="161" selection-start-column="0" selection-end-line="161" selection-end-column="0" />
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/app.js">
+    <entry file="file://$PROJECT_DIR$/imports/imageUploader.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="638">
-          <caret line="45" column="31" lean-forward="true" selection-start-line="45" selection-start-column="31" selection-end-line="45" selection-end-column="31" />
+        <state relative-caret-position="222">
+          <caret line="65" column="50" lean-forward="false" selection-start-line="65" selection-start-column="50" selection-end-line="65" selection-end-column="50" />
           <folding />
         </state>
       </provider>

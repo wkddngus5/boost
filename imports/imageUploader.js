@@ -22,7 +22,7 @@ module.exports.imageUpload = (req, res, Image) => {
     form.parse(req, (err, fields, files) => {
       console.log("LEN: ", !Object.keys(files).length);
       if(!Object.keys(files).length) {
-        res.status(406).json({"error" : "no images"});
+        res.status(406).json({error : "no images"});
       } else {
         logFileInfo(fields, files);
 
@@ -63,7 +63,7 @@ module.exports.imageUpdate = (req, res, Image) => {
     if (!req.session.passport) {
       res.status(401).json(DEMAND_LOGIN_MESSAGE);
     } else if (doc.author !== req.session.passport.user) {
-      res.status(401).json(DEMAND_LOGIN_MESSAGE);
+      res.status(403).json(DIFFRENT_AUTHOR_MESSAGE);
     } else {
       let form = new formidable.IncomingForm();
       let responseBody;
@@ -118,7 +118,7 @@ module.exports.imageDelete = (req, res, Image) => {
       res.status(401).json(DEMAND_LOGIN_MESSAGE);
     } else if (doc.author !== req.session.passport.user) {
       console.log("Can delete only author");
-      res.status(401).json(DIFFRENT_AUTHOR_MESSAGE);
+      res.status(403).json(DIFFRENT_AUTHOR_MESSAGE);
     } else {
       let imageName = doc.image_path.split('.')[0];
       console.log(imageName);
