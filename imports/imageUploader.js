@@ -3,10 +3,18 @@ const gm = require('gm');
 const del = require('del');
 const uploadsPath = process.cwd() + '/uploads/';
 
+const DEMAND_LOGIN_MESSAGE = {
+  error: "Login please"
+}
+const DIFFRENT_AUTHOR_MESSAGE = {
+  error: "Author is diffrent"
+}
+
+
 module.exports.imageUpload = (req, res, Image) => {
   console.log(req.user);
   if (!req.user) {
-    res.redirect('/login');
+    res.status(401).json(DEMAND_LOGIN_MESSAGE);
   } else {
     let form = new formidable.IncomingForm();
     let responseBody;
@@ -53,9 +61,9 @@ module.exports.imageUpload = (req, res, Image) => {
 module.exports.imageUpdate = (req, res, Image) => {
   Image.findOne({_id: req.params.image_id}, (err, doc) => {
     if (!req.session.passport) {
-      res.redirect('/login');
+      res.status(401).json(DEMAND_LOGIN_MESSAGE);
     } else if (doc.author !== req.session.passport.user) {
-      res.redirect('/login');
+      res.status(401).json(DEMAND_LOGIN_MESSAGE);
     } else {
       let form = new formidable.IncomingForm();
       let responseBody;
@@ -107,10 +115,10 @@ module.exports.imageDelete = (req, res, Image) => {
     }
     if (!req.session.passport) {
       console.log("Need to Login");
-      res.status(301).redirect('/login');
+      res.status(401).json(DEMAND_LOGIN_MESSAGE);
     } else if (doc.author !== req.session.passport.user) {
       console.log("Can delete only author");
-      res.status(301).redirect('/login');
+      res.status(401).json(DIFFRENT_AUTHOR_MESSAGE);
     } else {
       let imageName = doc.image_path.split('.')[0];
       console.log(imageName);

@@ -140,7 +140,7 @@ app.get('/logout', (req, res) => {
 //get own picture's info from mongodb
 app.get('/image', (req, res) => {
   if (!req.session.passport) {
-    res.status(301).redirect('/login');
+    res.status(401).json({error: "Login please"});
   } else {
     console.log('SESSION: ', req.session.passport.user);
     Image.find({author: req.session.passport.user}, (err, doc) => {
