@@ -2,8 +2,6 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="1903cfaa-1184-4c0a-b8e9-c114f89e6b50" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/abLJVjSCk_S2MLu_IuymoEJ91gwvN9yluSafEAmJff8.yYch_QIBu6poQ4uSHBS_bcEU6E5CMmVBseTScmbP_Uo" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app.js" afterPath="$PROJECT_DIR$/app.js" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -22,8 +20,8 @@
       <file leaf-file-name="app.js" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/app.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="386">
-              <caret line="173" column="119" lean-forward="true" selection-start-line="173" selection-start-column="119" selection-end-line="173" selection-end-column="119" />
+            <state relative-caret-position="533">
+              <caret line="54" column="3" lean-forward="true" selection-start-line="54" selection-start-column="3" selection-end-line="54" selection-end-column="3" />
               <folding />
             </state>
           </provider>
@@ -146,8 +144,8 @@
     <handled-path value="$PROJECT_DIR$/node_modules" />
   </component>
   <component name="ProjectFrameBounds">
-    <option name="x" value="1870" />
-    <option name="y" value="148" />
+    <option name="x" value="1373" />
+    <option name="y" value="147" />
     <option name="width" value="1280" />
     <option name="height" value="778" />
   </component>
@@ -670,15 +668,15 @@
       <workItem from="1499870142362" duration="449000" />
       <workItem from="1500021091394" duration="3092000" />
       <workItem from="1500268414515" duration="445000" />
-      <workItem from="1500381515080" duration="223000" />
+      <workItem from="1500381515080" duration="362000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="125056000" />
+    <option name="totallyTimeSpent" value="125195000" />
   </component>
   <component name="ToolWindowManager">
-    <frame x="1870" y="148" width="1280" height="778" extended-state="0" />
+    <frame x="1373" y="147" width="1280" height="778" extended-state="0" />
     <editor active="true" />
     <layout>
       <window_info id="Palette" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
@@ -952,8 +950,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/app.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="386">
-          <caret line="173" column="119" lean-forward="true" selection-start-line="173" selection-start-column="119" selection-end-line="173" selection-end-column="119" />
+        <state relative-caret-position="533">
+          <caret line="54" column="3" lean-forward="true" selection-start-line="54" selection-start-column="3" selection-end-line="54" selection-end-column="3" />
           <folding />
         </state>
       </provider>

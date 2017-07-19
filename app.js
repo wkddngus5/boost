@@ -50,8 +50,8 @@ strategy.registStrategy(User, passport);
 
 //get all picture's info from mongodb
 app.get('/', (req, res) => {
-  res.sendFile(__dirname + '/index.html');
-  // imageFinder.findAll(req, res, Image);
+  // res.sendFile(__dirname + '/index.html');
+  imageFinder.findAll(req, res, Image);
 });
 
 app.post('/auth/local', jsonParser,
