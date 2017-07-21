@@ -71,6 +71,13 @@ app.get('/auth/facebook/callback',
   }
 );
 
+app.post('auth/facebook/token',
+  passport.authenticate('facebook-token'),
+  function (req, res) {
+    res.send(req.user? 200 : 401);
+  }
+);
+
 app.get('/auth/github', passport.authenticate('github', {
   scope: ['user:email']
 }));

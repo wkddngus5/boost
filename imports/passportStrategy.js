@@ -3,6 +3,7 @@
  */
 const LocalStrategy = require('passport-local').Strategy;
 const FacebookStrategy = require('passport-facebook').Strategy;
+const FacebookTokenStrategy = require('passport-facebook-token');
 const GitHubStrategy = require('passport-github2').Strategy;
 const NaverStrategy = require('passport-naver').Strategy;
 const KakaoStrategy = require('passport-kakao').Strategy;
@@ -62,6 +63,28 @@ module.exports.registStrategy = (User, passport) => {
         }
         console.log(user);
         return done(null, user);
+      });
+    }
+  ));
+
+  passport.use(new FacebookTokenStrategy({
+    clientID: passportConfig.Facebook.clientID,
+    clientSecret: passportConfig.Facebook.clientSecret
+  },
+    function (accessToken, refreshToken, profile, done) {
+      console.log('profile: ', profile);
+      User.findOne({id: profile.id}, (err, user) => {
+        if (user) {
+          return done(err, user);
+        }
+        const newUser = new User({
+          id: profile.id,
+          nickname: profile.displayName,
+          strategy: "Facebook"
+        });
+        newUser.save(() => {
+          return done(null, newUser);
+        });
       });
     }
   ));
