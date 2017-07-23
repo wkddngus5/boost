@@ -3,18 +3,12 @@ const gm = require('gm');
 const del = require('del');
 const uploadsPath = process.cwd() + '/uploads/';
 
-const DEMAND_LOGIN_MESSAGE = {
-  error: "Login please"
-}
-const DIFFRENT_AUTHOR_MESSAGE = {
-  error: "Author is diffrent"
-}
-
+const responseMessage = require('./responseMessage');
 
 module.exports.imageUpload = (req, res, Image) => {
   console.log(req.user);
-  if (!req.user) {
-    res.status(401).json(DEMAND_LOGIN_MESSAGE);
+  if (!req.session.login_ok) {
+    res.status(401).json(responseMessage.responseMessage.DEMAND_LOGIN_MESSAGE);
   } else {
     let form = new formidable.IncomingForm();
     let responseBody;
@@ -27,7 +21,7 @@ module.exports.imageUpload = (req, res, Image) => {
         logFileInfo(fields, files);
 
         let image = new Image();
-        setImageData(image, fields, files, req);
+        setImageData(image, fields, files, req, fileName);
         responseBody = [image];
 
         //make thumbnailImg
@@ -60,10 +54,12 @@ module.exports.imageUpload = (req, res, Image) => {
 
 module.exports.imageUpdate = (req, res, Image) => {
   Image.findOne({_id: req.params.image_id}, (err, doc) => {
-    if (!req.session.passport) {
-      res.status(401).json(DEMAND_LOGIN_MESSAGE);
-    } else if (doc.author !== req.session.passport.user) {
-      res.status(403).json(DIFFRENT_AUTHOR_MESSAGE);
+    if (!req.session.login_ok) {
+      res.status(401).json(responseMessage.responseMessage.DEMAND_LOGIN_MESSAGE);
+    } else if (!doc) {
+      res.status(400).json({"error": "no image"});
+    } else if (doc.author !== req.session.login_id) {
+      res.status(403).json(responseMessage.responseMessage.DIFFRENT_AUTHOR_MESSAGE);
     } else {
       let form = new formidable.IncomingForm();
       let responseBody;
@@ -110,15 +106,12 @@ module.exports.imageUpdate = (req, res, Image) => {
 
 module.exports.imageDelete = (req, res, Image) => {
   Image.findOne({_id: req.params.image_id}, (err, doc) => {
-    if (err) {
-      res.status(400).send(err);
-    }
-    if (!req.session.passport) {
-      console.log("Need to Login");
-      res.status(401).json(DEMAND_LOGIN_MESSAGE);
-    } else if (doc.author !== req.session.passport.user) {
-      console.log("Can delete only author");
-      res.status(403).json(DIFFRENT_AUTHOR_MESSAGE);
+    if (!req.session.login_ok) {
+      res.status(401).json(responseMessage.responseMessage.DEMAND_LOGIN_MESSAGE);
+    } else if(!doc) {
+      res.status(400).json(responseMessage.responseMessage.NO_IMAGE);
+    }else if (doc.author !== req.session.login_id) {
+      res.status(403).json(responseMessage.responseMessage.DIFFRENT_AUTHOR_MESSAGE);
     } else {
       let imageName = doc.image_path.split('.')[0];
       console.log(imageName);
@@ -151,13 +144,14 @@ const guId = () => {
     s4() + '-' + s4() + s4() + s4();
 }
 
-const setImageData = (image, fields, files, req) => {
+const setImageData = (image, fields, files, req, fileName) => {
   let newImageValue = {files}.files.image_data;
-  console.log('session: ', req.session.passport.user);
   image.image_title = fields.image_title;
   image.image_path = newImageValue.path;
   image.image_desc = fields.image_desc;
-  image.author = req.session.passport.user;
+  image.author = req.session.login_id;
+  image.image_url = '/image/' + fileName;
+  image.thumb_url_image = '/image/' + fileName + '_thumb';
   return image;
 }
 

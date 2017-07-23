@@ -8,6 +8,8 @@ const jsonParser = bodyParser.json();
 const importFilesPath = process.cwd() + '/imports';
 
 const session = require('express-session');
+const passport = require('passport');
+const strategy = require(importFilesPath + '/passportStrategy');
 
 const mongoose = require('mongoose');
 const db = mongoose.connection;
@@ -20,7 +22,6 @@ const utils = require(importFilesPath + '/utils');
 const dbModels = require(importFilesPath + '/dbModels');
 const imageFinder = require(importFilesPath + '/imageFinder');
 const imageUploader = require(importFilesPath + '/imageUploader');
-const responseMessage = require(importFilesPath + '/responseMessage');
 
 
 const Image = dbModels.makeImageDao(mongoose);
@@ -43,11 +44,24 @@ app.use(session({
   saveUninitialized: true,
 }));
 
+app.use(passport.initialize());
+app.use(passport.session());
+
+strategy.registStrategy(User, passport);
+
 //get all picture's info from mongodb
 app.get('/', (req, res) => {
   // res.sendFile(__dirname + '/index.html');
   imageFinder.findAll(req, res, Image);
 });
+
+app.post('/auth/local', jsonParser,
+  passport.authenticate('local', {
+      successRedirect: '/',
+      failureRedirect: '/login',
+    }
+  )
+);
 
 app.post('/login', jsonParser, (req, res) => {
   console.log(req.body.email);
@@ -66,10 +80,60 @@ app.post('/login', jsonParser, (req, res) => {
       req.session.login_id = user._id;
       console.log("USER: ", user);
       res.status(200).json({"res": req.session});
-    }
-    ;
+    };
   });
 });
+
+app.get('/auth/facebook', passport.authenticate('facebook'));
+
+app.get('/auth/facebook/callback',
+  passport.authenticate('facebook', {failureRedirect: '/login'}),
+  (req, res) => {
+    res.status(301).redirect('/');
+  }
+);
+
+
+app.get('/my/api/:access_token/endpoint',
+  passport.authenticate('facebook-token'),
+  function (req, res) {
+    if (req.user){
+      //you're authenticated! return sensitive secret information here.
+      res.send(200, {'secrets':['array','of','top','secret','information']});
+    } else {
+      // not authenticated. go away.
+      res.send(401)
+    }
+  });
+
+app.get('/auth/github', passport.authenticate('github', {
+  scope: ['user:email']
+}));
+
+app.get('/auth/github/callback',
+  passport.authenticate('github', {failureRedirect: '/login'}),
+  (req, res) => {
+    res.redirect('/');
+  }
+);
+
+app.get('/auth/naver', passport.authenticate('naver'));
+
+app.get('/auth/naver/callback',
+  passport.authenticate('naver', {failureRedirect: '/login'}),
+  (req, res) => {
+    res.redirect('/');
+  }
+);
+
+app.get('/auth/kakao', passport.authenticate('kakao'));
+
+app.get('/auth/kakao/callback',
+  passport.authenticate('kakao', {failureRedirect: '/login'}),
+  (req, res) => {
+    res.redirect('/');
+  }
+);
 
 app.get('/login', (req, res) => {
   res.status(200).send('login plz');
@@ -104,19 +168,19 @@ app.post('/user', jsonParser, (req, res) => {
 
 app.get('/logout', (req, res) => {
   req.session.destroy(() => {
-    res.status(301).json({"message": "session"});
+    res.status(301).redirect('/');
   });
 });
 
 //get own picture's info from mongodb
 app.get('/image', (req, res) => {
-  if (!req.session.login_ok) {
-    res.status(401).json(responseMessage.responseMessage.NO_SESSION);
+  if (!req.session.passport) {
+    res.status(401).json({error: "Login please"});
   } else {
-    Image.findOne({author: req.session.login_id},
-       (err, doc) => {
+    console.log('SESSION: ', req.session.passport.user);
+    Image.find({author: req.session.passport.user}, (err, doc) => {
       res.status(200).json(doc);
-    })
+    });
   }
 });
 

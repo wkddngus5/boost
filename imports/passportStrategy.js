@@ -66,28 +66,48 @@ module.exports.registStrategy = (User, passport) => {
       });
     }
   ));
+  passport.use('facebook-token', new FacebookTokenStrategy({
+      clientID        : passportConfig.Facebook.clientID,
+      clientSecret    : passportConfig.Facebook.clientSecret
+    },
+    function(accessToken, refreshToken, profile, done) {
 
-  passport.use(new FacebookTokenStrategy({
-    clientID: passportConfig.Facebook.clientID,
-    clientSecret: passportConfig.Facebook.clientSecret
-  },
-    function (accessToken, refreshToken, profile, done) {
-      console.log('profile: ', profile);
-      User.findOne({id: profile.id}, (err, user) => {
-        if (user) {
-          return done(err, user);
-        }
-        const newUser = new User({
-          id: profile.id,
-          nickname: profile.displayName,
-          strategy: "Facebook"
-        });
-        newUser.save(() => {
-          return done(null, newUser);
-        });
-      });
+      var user = {
+        'email': profile.emails[0].value,
+        'name' : profile.name.givenName + ' ' + profile.name.familyName,
+        'id'   : profile.id,
+        'token': accessToken
+      }
+
+      // You can perform any necessary actions with your user at this point,
+      // e.g. internal verification against a users table,
+      // creating new user entries, etc.
+
+      return done(null, user); // the user object we just made gets passed to the route's controller as `req.user`
     }
   ));
+
+  // passport.use(new FacebookTokenStrategy({
+  //   clientID: passportConfig.Facebook.clientID,
+  //   clientSecret: passportConfig.Facebook.clientSecret
+  // }, function (accessToken, refreshToken, profile, done) {
+  //     console.log("====================");
+  //     console.log('profile: ', profile);
+  //     User.findOne({id: profile.id}, (err, user) => {
+  //       if (user) {
+  //         return done(err, user);
+  //       }
+  //       const newUser = new User({
+  //         id: profile.id,
+  //         nickname: profile.displayName,
+  //         strategy: "Facebook"
+  //       });
+  //       newUser.save(() => {
+  //         return done(null, newUser);
+  //       });
+  //     });
+  //   }
+  // ));
 
   passport.use(new FacebookStrategy({
       clientID: passportConfig.Facebook.clientID,

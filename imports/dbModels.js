@@ -5,6 +5,8 @@ module.exports.makeImageDao = (mongoose) => {
       image_title: String,
       image_desc: String,
       author: String,
+      image_url: String,
+      thumb_url_image: String,
       image_path: String
   }, {
       collection: 'image'
