@@ -65,9 +65,11 @@ app.post('/login', jsonParser, (req, res) => {
       req.session.login_ok = true;
       req.session.login_id = user._id;
       console.log("USER: ", user);
-      res.status(200).json({"res": req.session});
+      res.status(200).json({
+        "session": req.session,
+        "loginUser": user
+      });
     }
-    ;
   });
 });
 
