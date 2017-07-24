@@ -122,7 +122,10 @@ app.get('/image', (req, res) => {
 
 //file upload(post)
 app.post('/image', (req, res) => {
-  imageUploader.imageUpload(req, res, Image);
+  User.findOne({_id: req.session.login_id}, {nickname:1}, (err, doc) => {
+    imageUploader.imageUpload(req, res, Image, doc.nickname);
+  });
+
 });
 
 //get a image file

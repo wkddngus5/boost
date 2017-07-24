@@ -5,7 +5,7 @@ const uploadsPath = process.cwd() + '/uploads/';
 
 const responseMessage = require('./responseMessage');
 
-module.exports.imageUpload = (req, res, Image) => {
+module.exports.imageUpload = (req, res, Image, authorNickname) => {
   console.log(req.user);
   if (!req.session.login_ok) {
     res.status(401).json(responseMessage.responseMessage.DEMAND_LOGIN_MESSAGE);
@@ -21,7 +21,7 @@ module.exports.imageUpload = (req, res, Image) => {
         logFileInfo(fields, files);
 
         let image = new Image();
-        setImageData(image, fields, files, req, fileName);
+        setImageData(image, fields, files, req, fileName, authorNickname);
         responseBody = [image];
 
         //make thumbnailImg
@@ -144,14 +144,16 @@ const guId = () => {
     s4() + '-' + s4() + s4() + s4();
 }
 
-const setImageData = (image, fields, files, req, fileName) => {
+const setImageData = (image, fields, files, req, fileName, authorNickname) => {
   let newImageValue = {files}.files.image_data;
   image.image_title = fields.image_title;
   image.image_path = newImageValue.path;
   image.image_desc = fields.image_desc;
   image.author = req.session.login_id;
+  image.author_nickname = authorNickname;
   image.image_url = '/image/' + fileName;
-  image.thumb_url_image = '/image/' + fileName + '_thumb';
+  image.thumb_image_url = '/image/' + fileName + '_thumb';
+  image.created_date = new Date();
   return image;
 }
 
