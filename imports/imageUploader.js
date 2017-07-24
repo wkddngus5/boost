@@ -16,7 +16,7 @@ module.exports.imageUpload = (req, res, Image, authorNickname) => {
     form.parse(req, (err, fields, files) => {
       console.log("LEN: ", !Object.keys(files).length);
       if(!Object.keys(files).length) {
-        res.status(406).json({error : "no images"});
+        res.status(406).json(responseMessage.responseMessage.NO_IMAGE);
       } else {
         logFileInfo(fields, files);
 
@@ -57,7 +57,7 @@ module.exports.imageUpdate = (req, res, Image) => {
     if (!req.session.login_ok) {
       res.status(401).json(responseMessage.responseMessage.DEMAND_LOGIN_MESSAGE);
     } else if (!doc) {
-      res.status(400).json({"error": "no image"});
+      res.status(406).json(responseMessage.responseMessage.NO_IMAGE);
     } else if (doc.author !== req.session.login_id) {
       res.status(403).json(responseMessage.responseMessage.DIFFRENT_AUTHOR_MESSAGE);
     } else {
@@ -66,32 +66,38 @@ module.exports.imageUpdate = (req, res, Image) => {
       let fileName = doc.image_path.split('.')[0];
 
       form.parse(req, function (err, fields, files) {
-        logFileInfo(fields, files);
+        if(!Object.keys(files).length) {
+          res.status(406).json(responseMessage.responseMessage.NO_IMAGE);
+        } else {
+          logFileInfo(fields, files);
 
-        let image = new Image();
-        setImageData(image, fields, files, req);
-        responseBody = [image];
+          let image = new Image();
+          setImageData(image, fields, files, req);
+          responseBody = [image];
 
-        //make thumbnailImg
-        gm(image.image_path)
-          .thumb(100, 100, fileName + '_thumb.jpg', function (err) {
-            if (err) console.error(err);
-            else console.log('done - thumb');
-          });
-
-        Image.findOneAndUpdate({_id: req.params.image_id}, {
-          $set: {
-            image_title: image.image_title,
-            image_desc: image.image_desc
-          }
-        }, (err, updatedImage) => {
-          if(err) {
-            res.status(500).send({
-              error: 'data update failure'
+          //make thumbnailImg
+          gm(image.image_path)
+            .thumb(100, 100, fileName + '_thumb.jpg', function (err) {
+              if (err) console.error(err);
+              else console.log('done - thumb');
             });
-          }
-          res.status(201).json(updatedImage);
-        });
+
+          Image.findOneAndUpdate({_id: req.params.image_id}, {
+            $set: {
+              image_title: image.image_title,
+              image_desc: image.image_desc
+            },
+          }, {
+            new: true
+          }, (err, updatedImage) => {
+            if(err) {
+              res.status(500).send({
+                error: 'data update failure'
+              });
+            }
+            res.status(201).json(updatedImage);
+          });
+        }
       });
 
       form.on('fileBegin', (name, file) => {
@@ -153,7 +159,7 @@ const setImageData = (image, fields, files, req, fileName, authorNickname) => {
   image.author_nickname = authorNickname;
   image.image_url = '/image/' + fileName;
   image.thumb_image_url = '/image/' + fileName + '_thumb';
-  image.created_at = new Date().getTime();
+  image.created_at = Math.round(new Date().getTime() / 1000);
   return image;
 }
 

@@ -22,7 +22,6 @@ const imageFinder = require(importFilesPath + '/imageFinder');
 const imageUploader = require(importFilesPath + '/imageUploader');
 const responseMessage = require(importFilesPath + '/responseMessage');
 
-
 const Image = dbModels.makeImageDao(mongoose);
 const User = dbModels.makeUserDao(mongoose);
 
