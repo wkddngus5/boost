@@ -153,7 +153,7 @@ const setImageData = (image, fields, files, req, fileName, authorNickname) => {
   image.author_nickname = authorNickname;
   image.image_url = '/image/' + fileName;
   image.thumb_image_url = '/image/' + fileName + '_thumb';
-  image.created_date = new Date();
+  image.created_at = new Date().getTime();
   return image;
 }
 

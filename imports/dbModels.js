@@ -9,7 +9,7 @@ module.exports.makeImageDao = (mongoose) => {
       image_url: String,
       thumb_image_url: String,
       image_path: String,
-      created_date: String
+      created_at: Number
   }, {
       collection: 'image'
   });
