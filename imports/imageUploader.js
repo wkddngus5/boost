@@ -8,7 +8,7 @@ const responseMessage = require('./responseMessage');
 module.exports.imageUpload = (req, res, Image, authorNickname) => {
   console.log(req.user);
   if (!req.session.login_ok) {
-    res.status(401).json(responseMessage.responseMessage.DEMAND_LOGIN_MESSAGE);
+    res.status(401).json(responseMessage.responseMessage.LOGIN_PLEASE);
   } else {
     let form = new formidable.IncomingForm();
     let responseBody;
@@ -16,7 +16,7 @@ module.exports.imageUpload = (req, res, Image, authorNickname) => {
     form.parse(req, (err, fields, files) => {
       console.log("LEN: ", !Object.keys(files).length);
       if(!Object.keys(files).length) {
-        res.status(406).json(responseMessage.responseMessage.NO_IMAGE);
+        res.status(406).json(responseMessage.responseMessage.PLEASE_CONTAIN_IMAGE);
       } else {
         logFileInfo(fields, files);
 
@@ -35,9 +35,7 @@ module.exports.imageUpload = (req, res, Image, authorNickname) => {
         image.save((err) => {
           if (err) {
             console.log(err);
-            res.status(500).send({
-              error: 'data save failure'
-            });
+            res.status(500).json(responseMessage.responseMessage.DB_ERROR);
           }
           res.status(201).json(responseBody);
         });
@@ -55,11 +53,11 @@ module.exports.imageUpload = (req, res, Image, authorNickname) => {
 module.exports.imageUpdate = (req, res, Image) => {
   Image.findOne({_id: req.params.image_id}, (err, doc) => {
     if (!req.session.login_ok) {
-      res.status(401).json(responseMessage.responseMessage.DEMAND_LOGIN_MESSAGE);
+      res.status(401).json(responseMessage.responseMessage.LOGIN_PLEASE);
     } else if (!doc) {
       res.status(406).json(responseMessage.responseMessage.NO_IMAGE);
     } else if (doc.author !== req.session.login_id) {
-      res.status(403).json(responseMessage.responseMessage.DIFFRENT_AUTHOR_MESSAGE);
+      res.status(403).json(responseMessage.responseMessage.DIFFRENT_AUTHOR);
     } else {
       let form = new formidable.IncomingForm();
       let responseBody;
@@ -67,7 +65,7 @@ module.exports.imageUpdate = (req, res, Image) => {
 
       form.parse(req, function (err, fields, files) {
         if(!Object.keys(files).length) {
-          res.status(406).json(responseMessage.responseMessage.NO_IMAGE);
+          res.status(405).json(responseMessage.responseMessage.PLEASE_CONTAIN_IMAGE);
         } else {
           logFileInfo(fields, files);
 
@@ -113,11 +111,11 @@ module.exports.imageUpdate = (req, res, Image) => {
 module.exports.imageDelete = (req, res, Image) => {
   Image.findOne({_id: req.params.image_id}, (err, doc) => {
     if (!req.session.login_ok) {
-      res.status(401).json(responseMessage.responseMessage.DEMAND_LOGIN_MESSAGE);
+      res.status(401).json(responseMessage.responseMessage.LOGIN_PLEASE);
     } else if(!doc) {
-      res.status(400).json(responseMessage.responseMessage.NO_IMAGE);
+      res.status(406).json(responseMessage.responseMessage.NO_IMAGE);
     }else if (doc.author !== req.session.login_id) {
-      res.status(403).json(responseMessage.responseMessage.DIFFRENT_AUTHOR_MESSAGE);
+      res.status(403).json(responseMessage.responseMessage.DIFFRENT_AUTHOR);
     } else {
       let imageName = doc.image_path.split('.')[0];
       console.log(imageName);

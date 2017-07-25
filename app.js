@@ -53,13 +53,13 @@ app.post('/login', jsonParser, (req, res) => {
   console.log(req.body.password);
   User.findOne({email: req.body.email}, (err, user) => {
     if (err) {
-      res.status(401).json({"error": "error caused!"});
+      res.status(500).json(responseMessage.responseMessage.DB_ERROR);
     }
     else if (!user) {
-      res.status(401).json({"error": "wrong email!"});
+      res.status(401).json(responseMessage.responseMessage.NO_USER);
     }
     else if (user.password !== req.body.password) {
-      res.status(401).json({"error": "wrong password!"});
+      res.status(401).json(responseMessage.responseMessage.WRONG_PASSWORD);
     } else {
       req.session.login_ok = true;
       req.session.login_id = user._id;
@@ -76,12 +76,9 @@ app.get('/login', (req, res) => {
 app.post('/user', jsonParser, (req, res) => {
   User.findOne({email: req.body.email}, (err, doc) => {
     if (doc) {
-      res.status(403).send({
-        error: 'email overlaped!'
-      });
+      res.status(406).json(responseMessage.responseMessage.EMAIL_DUPLICATION);
       return;
     }
-
     let user = new User();
     user.email = req.body.email;
     user.password = req.body.password;
@@ -91,18 +88,16 @@ app.post('/user', jsonParser, (req, res) => {
     user.save((err) => {
       if (err) {
         console.log(err);
-        res.status(500).send({
-          error: 'data save failure'
-        });
+        res.status(500).json(responseMessage.responseMessage.DB_ERROR);
       }
-      res.status(201).send(user);
+      res.status(201).json(user);
     });
   });
 });
 
 app.get('/logout', (req, res) => {
   req.session.destroy(() => {
-    res.status(301).json({"message": "session"});
+    res.status(301).json(responseMessage.responseMessage.LOGOUT);
   });
 });
 
@@ -111,7 +106,7 @@ app.get('/image', (req, res) => {
   if (!req.session.login_ok) {
     res.status(401).json(responseMessage.responseMessage.NO_SESSION);
   } else {
-    Image.findOne({author: req.session.login_id},
+    Image.find({author: req.session.login_id},
        (err, doc) => {
       res.status(200).json(doc);
     })
